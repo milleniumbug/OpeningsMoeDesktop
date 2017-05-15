@@ -4,9 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OpeningsMoeWpfClient"
+        xmlns:media="https://github.com/JohanLarsson/Gu.Wpf.Media"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Loading..." Height="350" Width="525"
+        Loaded="OnLoaded">
     <Grid>
-        
+        <media:MediaElementWrapper x:Name="OpeningPlayer" MediaEnded="OnVideoFinishedPlaying" Stretch="Uniform"/>
     </Grid>
 </Window>
