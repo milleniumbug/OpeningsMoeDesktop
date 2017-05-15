@@ -20,13 +20,33 @@ namespace OpeningsMoeWpfClient
 
         private ObservableCollection<Movie> allMovies = new ObservableCollection<Movie>();
 
-        public int CurrentMovieIndicator { get; private set; } = 0;
+        private int currentMovieIndicator;
+        public int CurrentMovieIndicator
+        {
+            get => currentMovieIndicator;
+            private set
+            {
+                if(currentMovieIndicator == value)
+                    return;
+
+                currentMovieIndicator = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentMovie));
+                OnPropertyChanged(nameof(CurrentlyPlaying));
+            }
+        }
 
         public IReadOnlyList<Movie> AllMovies => allMovies;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         private Task prefetchingTask;
+
+        public Movie CurrentMovie => AllMovies.Count > 0 ? AllMovies[CurrentMovieIndicator] : null;
+
+        public string CurrentlyPlaying => CurrentMovie != null
+            ? $"{CurrentMovie.Title} - {CurrentMovie.Source}"
+            : "Loading...";
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -82,8 +102,7 @@ namespace OpeningsMoeWpfClient
 
         public async Task<Movie> RequestNextMovie()
         {
-            ++CurrentMovieIndicator;
-            CurrentMovieIndicator %= AllMovies.Count;
+            CurrentMovieIndicator = (CurrentMovieIndicator+1) % AllMovies.Count;
             var movie = AllMovies[CurrentMovieIndicator];
             if(prefetchingTask != null)
                 await prefetchingTask;

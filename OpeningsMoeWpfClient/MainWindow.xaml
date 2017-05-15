@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:OpeningsMoeWpfClient"
         xmlns:media="https://github.com/JohanLarsson/Gu.Wpf.Media"
         mc:Ignorable="d"
-        Title="Loading..." Height="350" Width="525"
+        Title="{Binding CurrentlyPlaying}" Height="350" Width="525"
         Loaded="OnLoaded">
     <Grid>
         <media:MediaElementWrapper x:Name="OpeningPlayer" MediaEnded="OnVideoFinishedPlaying" Stretch="Uniform"/>
