@@ -53,19 +53,6 @@ namespace OpeningsMoeWpfClient
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private static void Shuffle<T>(IList<T> list, Random rand)
-        {
-            int n = list.Count;
-            while (n > 1)
-            {
-                n--;
-                int k = rand.Next(n + 1);
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
-        }
-
         private void ReplaceWith(IEnumerable<Movie> movies)
         {
             allMovies.Clear();
@@ -77,27 +64,16 @@ namespace OpeningsMoeWpfClient
 
         public async Task DownloadMoreMovies()
         {
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.BaseAddress = webAppUri;
-                using (var response = await httpClient.GetAsync("api/list.php"))
-                {
-                    var resultString = await response.Content.ReadAsStringAsync();
-                    var movieList = JsonConvert.DeserializeObject<IEnumerable<MovieData>>(resultString)
-                        .Select(data => new Movie(data, webAppUri, converter))
-                        .ToList();
-                    Shuffle(movieList, random);
-                    ReplaceWith(movieList);
+            var movies = await MovieDownloader.DownloadMovies(webAppUri, converter);
+            ReplaceWith(CollectionUtils.Shuffled(movies.ToList(), random));
 
-                    var cachedMovie = GetCachedMovie(allMovies);
-                    if(cachedMovie != null)
-                    {
-                        allMovies.Add(cachedMovie);
-                        var indexOfLastElement = allMovies.Count - 1;
-                        // needs to be one less because RequestNextVideo() is called as the first thing
-                        CurrentMovieIndicator = indexOfLastElement - 1;
-                    }
-                }
+            var cachedMovie = GetCachedMovie(allMovies);
+            if (cachedMovie != null)
+            {
+                allMovies.Add(cachedMovie);
+                var indexOfLastElement = allMovies.Count - 1;
+                // needs to be one less because RequestNextVideo() is called as the first thing
+                CurrentMovieIndicator = indexOfLastElement - 1;
             }
         }
 
