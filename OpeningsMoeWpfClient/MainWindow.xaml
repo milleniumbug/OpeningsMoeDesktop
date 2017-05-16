@@ -8,6 +8,11 @@
         Title="{Binding CurrentlyPlaying}" Height="350" Width="525"
         Loaded="OnLoaded">
     <Grid>
-        <MediaElement x:Name="OpeningPlayer" MediaEnded="OnVideoFinishedPlaying" Stretch="Uniform" LoadedBehavior="Manual" UnloadedBehavior="Manual"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <MediaElement Grid.Column="0" x:Name="OpeningPlayer" MediaEnded="OnVideoFinishedPlaying" Stretch="Uniform" LoadedBehavior="Manual" UnloadedBehavior="Manual"/>
+        <Slider Orientation="Vertical" Grid.Column="1" Value="{Binding ElementName=OpeningPlayer, Path=Volume}" Minimum="0" Maximum="1"></Slider>
     </Grid>
 </Window>
