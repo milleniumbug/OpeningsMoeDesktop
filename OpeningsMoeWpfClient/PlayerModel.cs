@@ -110,7 +110,7 @@ namespace OpeningsMoeWpfClient
             if(cachedFiles.Count == 0)
                 return null;
             var randomChoice = cachedFiles[random.Next(cachedFiles.Count)];
-            return allMovies.Single(movie => movie.FileName.Contains(randomChoice));
+            return allMovies.Single(movie => movie.LocalFileName.Contains(randomChoice));
         }
 
         public async Task PrefetchNextMovie()

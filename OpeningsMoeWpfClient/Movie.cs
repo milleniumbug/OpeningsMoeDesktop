@@ -12,8 +12,8 @@ namespace OpeningsMoeWpfClient
     {
         public async Task<string> LoadVideoAndGetItsLocalPath()
         {
-            var localPath = Path.Combine("Openings", FileName);
-            var newLocalPath = Path.Combine("Openings", NewFileName);
+            var localPath = Path.Combine("Openings", LocalFileName);
+            var newLocalPath = Path.Combine("Openings", ConvertedFileName);
             var sourceExists = File.Exists(localPath);
             var adaptedExists = File.Exists(newLocalPath);
             if(!sourceExists)
@@ -22,7 +22,7 @@ namespace OpeningsMoeWpfClient
                 {
                     httpClient.BaseAddress = webAppUri;
                     using(var file = File.OpenWrite(localPath))
-                    using(var stream = await httpClient.GetStreamAsync($"video/{FileName}"))
+                    using(var stream = await httpClient.GetStreamAsync($"video/{RemoteFileName}"))
                     {
                         await stream.CopyToAsync(file);
                     }
@@ -35,9 +35,19 @@ namespace OpeningsMoeWpfClient
             return newLocalPath;
         }
 
-        private string NewFileName => $"{Path.GetFileNameWithoutExtension(FileName)}.avi";
+        public string LocalFileName => RemoteFileName
+            .Replace(':', '_')
+            .Replace('\\', '_')
+            .Replace('*', '_')
+            .Replace('?', '_')
+            .Replace('"', '_')
+            .Replace('<', '_')
+            .Replace('>', '_')
+            .Replace('|', '_');
 
-        public string FileName => movieData.file;
+        private string ConvertedFileName => $"{Path.GetFileNameWithoutExtension(LocalFileName)}.avi";
+
+        public string RemoteFileName => movieData.file;
 
         public string Title => movieData.title;
 
