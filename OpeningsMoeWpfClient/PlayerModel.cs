@@ -53,19 +53,11 @@ namespace OpeningsMoeWpfClient
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void ReplaceWith(IEnumerable<Movie> movies)
-        {
-            allMovies.Clear();
-            foreach(var movie in movies)
-            {
-                allMovies.Add(movie);
-            }
-        }
-
         public async Task DownloadMoreMovies()
         {
-            var movies = await MovieDownloader.DownloadMovies(webAppUri, converter);
-            ReplaceWith(CollectionUtils.Shuffled(movies.ToList(), random));
+            var movies = await MovieDownloader.FetchListOfMovies(webAppUri, converter);
+            var shuffledMovies = CollectionUtils.Shuffled(movies.ToList(), random);
+            CollectionUtils.ReplaceWith(allMovies, shuffledMovies);
 
             var cachedMovie = GetCachedMovie(allMovies);
             if (cachedMovie != null)

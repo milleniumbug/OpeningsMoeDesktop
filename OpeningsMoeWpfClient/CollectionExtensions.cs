@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpeningsMoeWpfClient
 {
@@ -26,6 +24,29 @@ namespace OpeningsMoeWpfClient
             var shuffledList = list.ToList();
             Shuffle(shuffledList, rand);
             return shuffledList;
+        }
+
+        public static IEnumerable<T> Cycle<T>(ICollection<T> collection)
+        {
+            while(true)
+            {
+                using(var enumerator = collection.GetEnumerator())
+                {
+                    while(enumerator.MoveNext())
+                    {
+                        yield return enumerator.Current;
+                    }
+                }
+            }
+        }
+
+        public static void ReplaceWith<T>(ICollection<T> targetCollection, IEnumerable<T> elements)
+        {
+            targetCollection.Clear();
+            foreach(var element in elements)
+            {
+                targetCollection.Add(element);
+            }
         }
     }
 }

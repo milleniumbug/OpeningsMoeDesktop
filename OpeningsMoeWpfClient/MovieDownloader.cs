@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -9,7 +10,7 @@ namespace OpeningsMoeWpfClient
 {
     static class MovieDownloader
     {
-        public static async Task<IEnumerable<Movie>> DownloadMovies(Uri uri, IMovieConverter converter)
+        public static async Task<IEnumerable<Movie>> FetchListOfMovies(Uri uri, IMovieConverter converter)
         {
             using (var httpClient = new HttpClient())
             {
@@ -22,6 +23,19 @@ namespace OpeningsMoeWpfClient
                         .ToList();
                 }
             }
+        }
+
+        public static IObservable<Movie> DownloadMovies(ICollection<Movie> movies)
+        {
+            return Observable.Create<Movie>(async (IObserver<Movie> o) =>
+            {
+                foreach(var movie in CollectionUtils.Cycle(movies))
+                {
+                    await movie.LoadVideoAndGetItsLocalPath();
+                    o.OnNext(movie);
+                }
+                return () => {};
+            });
         }
     }
 }
