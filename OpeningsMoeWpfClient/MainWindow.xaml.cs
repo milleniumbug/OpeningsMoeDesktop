@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using Gu.Wpf.Media;
+using System.Windows.Controls;
 
 namespace OpeningsMoeWpfClient
 {
@@ -27,7 +27,7 @@ namespace OpeningsMoeWpfClient
         {
             var movie = await model.RequestNextMovie();
             OpeningPlayer.SetCurrentValue(
-                MediaElementWrapper.SourceProperty,
+                MediaElement.SourceProperty,
                 new Uri(
                     Path.Combine(
                         Directory.GetCurrentDirectory(),
