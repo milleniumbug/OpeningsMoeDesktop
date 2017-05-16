@@ -88,8 +88,29 @@ namespace OpeningsMoeWpfClient
                         .ToList();
                     Shuffle(movieList, random);
                     ReplaceWith(movieList);
+
+                    var cachedMovie = GetCachedMovie(allMovies);
+                    if(cachedMovie != null)
+                    {
+                        allMovies.Add(cachedMovie);
+                        var indexOfLastElement = allMovies.Count - 1;
+                        // needs to be one less because RequestNextVideo() is called as the first thing
+                        CurrentMovieIndicator = indexOfLastElement - 1;
+                    }
                 }
             }
+        }
+
+        private Movie GetCachedMovie(IEnumerable<Movie> allMovies)
+        {
+            var cachedFiles = new DirectoryInfo("Openings")
+                .EnumerateFiles("*.avi")
+                .Select(file => Path.GetFileNameWithoutExtension(file.Name))
+                .ToList();
+            if(cachedFiles.Count == 0)
+                return null;
+            var randomChoice = cachedFiles[random.Next(cachedFiles.Count)];
+            return allMovies.Single(movie => movie.FileName.Contains(randomChoice));
         }
 
         public async Task PrefetchNextMovie()

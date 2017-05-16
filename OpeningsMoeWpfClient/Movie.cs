@@ -37,7 +37,7 @@ namespace OpeningsMoeWpfClient
 
         private string NewFileName => $"{Path.GetFileNameWithoutExtension(FileName)}.avi";
 
-        private string FileName => movieData.file;
+        public string FileName => movieData.file;
 
         public string Title => movieData.title;
 
