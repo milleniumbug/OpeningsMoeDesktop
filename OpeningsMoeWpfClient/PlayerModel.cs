@@ -94,7 +94,7 @@ namespace OpeningsMoeWpfClient
 
         public async Task PrefetchNextMovie()
         {
-            if(prefetchingTask == null)
+            if(prefetchingTask == null || prefetchingTask.IsCompleted)
                 prefetchingTask = AllMovies[(CurrentMovieIndicator + 1) % AllMovies.Count].LoadVideoAndGetItsLocalPath();
             await prefetchingTask;
             prefetchingTask = null;

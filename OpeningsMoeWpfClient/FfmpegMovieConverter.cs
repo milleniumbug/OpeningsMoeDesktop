@@ -38,6 +38,7 @@ namespace OpeningsMoeWpfClient
             };
 
             process.Start();
+            process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             return tcs.Task;
         }
