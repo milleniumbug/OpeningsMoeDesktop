@@ -12,35 +12,45 @@ namespace OpeningsMoeWpfClient
     {
         private string ffmpegPath;
 
-        public Task<string> ConvertMovie(string sourcePath, string targetPath)
+        private Task<int> LaunchProcess(Func<Process> factory, Action<Process> postLaunchConfiguration)
         {
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<int>();
 
-            var process = new Process
+            var process = factory();
+
+            process.Exited += (sender, args) =>
+            {
+                tcs.SetResult(process.ExitCode);
+                process.Dispose();
+            };
+
+            process.Start();
+            postLaunchConfiguration(process);
+
+            return tcs.Task;
+        }
+
+        public async Task<string> ConvertMovie(string sourcePath, string targetPath)
+        {
+            int exitCode = await LaunchProcess(() => new Process
             {
                 StartInfo =
                 {
                     UseShellExecute = false,
                     FileName = ffmpegPath,
-                    Arguments = $@"-i ""{sourcePath}"" -vcodec msmpeg4v2 -acodec libmp3lame -strict -2 ""{targetPath}""",
+                    Arguments =
+                        $@"-i ""{sourcePath}"" -vcodec msmpeg4v2 -acodec libmp3lame -strict -2 ""{targetPath}""",
                     CreateNoWindow = true
                 },
                 EnableRaisingEvents = true
-            };
-
-            process.Exited += (sender, args) =>
+            }, process =>
             {
-                if(process.ExitCode == 0)
-                    tcs.SetResult(targetPath);
-                else
-                    tcs.SetException(new InvalidOperationException("SOMETHING WENT WRONG"));
-                process.Dispose();
-            };
+                process.PriorityClass = ProcessPriorityClass.BelowNormal;
+            });
 
-            process.Start();
-            process.PriorityClass = ProcessPriorityClass.BelowNormal;
-
-            return tcs.Task;
+            if(exitCode == 0)
+                return targetPath;
+            throw new InvalidOperationException("SOMETHING WENT WRONG");
         }
 
         public FfmpegMovieConverter(string ffmpegPath)
