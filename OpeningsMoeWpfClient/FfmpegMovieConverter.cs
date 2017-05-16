@@ -57,5 +57,17 @@ namespace OpeningsMoeWpfClient
         {
             this.ffmpegPath = ffmpegPath;
         }
+
+        public static string TryLookupFfmpeg()
+        {
+            var enviromentPath = Environment.GetEnvironmentVariable("PATH");
+            if (enviromentPath == null)
+                return null;
+            var paths = enviromentPath.Split(';');
+            var exePath = paths
+                .Select(x => Path.Combine(x, "ffmpeg.exe"))
+                .FirstOrDefault(File.Exists);
+            return string.IsNullOrWhiteSpace(exePath) == false ? exePath : null;
+        }
     }
 }

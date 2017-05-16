@@ -15,7 +15,7 @@ namespace OpeningsMoeWpfClient
 
         public MainWindow()
         {
-            var ffmpegPath = PlayerModel.TryLookupFfmpeg();
+            var ffmpegPath = FfmpegMovieConverter.TryLookupFfmpeg();
             if(ffmpegPath == null)
                 throw new InvalidOperationException("FFMPEG NOT FOUND");
             model = new PlayerModel(new Uri("http://openings.moe/"), new Random(), new FfmpegMovieConverter(ffmpegPath));
