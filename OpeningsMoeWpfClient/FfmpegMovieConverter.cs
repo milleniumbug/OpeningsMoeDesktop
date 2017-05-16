@@ -28,19 +28,15 @@ namespace OpeningsMoeWpfClient
                 EnableRaisingEvents = true
             };
 
-            var watch = new Stopwatch();
-
             process.Exited += (sender, args) =>
             {
                 if(process.ExitCode == 0)
                     tcs.SetResult(targetPath);
                 else
                     tcs.SetException(new InvalidOperationException("SOMETHING WENT WRONG"));
-                Console.WriteLine(watch.ElapsedMilliseconds);
                 process.Dispose();
             };
 
-            watch.Start();
             process.Start();
             process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
