@@ -22,11 +22,13 @@ namespace OpeningsMoeWpfClient
                 {
                     UseShellExecute = false,
                     FileName = ffmpegPath,
-                    Arguments = $@"-i ""{sourcePath}"" -vcodec h264 -acodec aac -strict -2 ""{targetPath}""",
+                    Arguments = $@"-i ""{sourcePath}"" -vcodec msmpeg4v2 -acodec libmp3lame -strict -2 ""{targetPath}""",
                     CreateNoWindow = true
                 },
                 EnableRaisingEvents = true
             };
+
+            var watch = new Stopwatch();
 
             process.Exited += (sender, args) =>
             {
@@ -34,9 +36,11 @@ namespace OpeningsMoeWpfClient
                     tcs.SetResult(targetPath);
                 else
                     tcs.SetException(new InvalidOperationException("SOMETHING WENT WRONG"));
+                Console.WriteLine(watch.ElapsedMilliseconds);
                 process.Dispose();
             };
 
+            watch.Start();
             process.Start();
             process.PriorityClass = ProcessPriorityClass.BelowNormal;
 

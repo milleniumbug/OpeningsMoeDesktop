@@ -8,6 +8,6 @@
         Title="{Binding CurrentlyPlaying}" Height="350" Width="525"
         Loaded="OnLoaded">
     <Grid>
-        <MediaElement x:Name="OpeningPlayer" MediaEnded="OnVideoFinishedPlaying" Stretch="Uniform"/>
+        <MediaElement x:Name="OpeningPlayer" MediaEnded="OnVideoFinishedPlaying" Stretch="Uniform" LoadedBehavior="Manual" UnloadedBehavior="Manual"/>
     </Grid>
 </Window>

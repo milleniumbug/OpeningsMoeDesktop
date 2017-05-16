@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace OpeningsMoeWpfClient
             return newLocalPath;
         }
 
-        private string NewFileName => $"{Path.GetFileNameWithoutExtension(FileName)}.mp4";
+        private string NewFileName => $"{Path.GetFileNameWithoutExtension(FileName)}.avi";
 
         private string FileName => movieData.file;
 
