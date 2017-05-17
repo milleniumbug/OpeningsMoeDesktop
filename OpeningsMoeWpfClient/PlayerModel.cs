@@ -21,29 +21,27 @@ namespace OpeningsMoeWpfClient
 
         private ObservableCollection<Movie> allMovies = new ObservableCollection<Movie>();
 
-        private int currentMovieIndicator;
-        public int CurrentMovieIndicator
-        {
-            get => currentMovieIndicator;
-            private set
-            {
-                if(currentMovieIndicator == value)
-                    return;
-
-                currentMovieIndicator = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(CurrentMovie));
-                OnPropertyChanged(nameof(CurrentlyPlaying));
-            }
-        }
+        private IEnumerator<Task<Movie>> movieSequenceEnumerator;
 
         public IReadOnlyList<Movie> AllMovies => allMovies;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         private Task prefetchingTask;
+        private Movie currentMovie;
 
-        public Movie CurrentMovie => AllMovies.Count > 0 ? AllMovies[CurrentMovieIndicator] : null;
+        private Movie CurrentMovie
+        {
+            get => currentMovie;
+            set
+            {
+                if(currentMovie == value)
+                    return;
+                currentMovie = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentlyPlaying));
+            }
+        }
 
         public string CurrentlyPlaying => CurrentMovie != null
             ? $"{CurrentMovie.Title} - {CurrentMovie.Source}"
@@ -54,51 +52,44 @@ namespace OpeningsMoeWpfClient
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public async Task DownloadMoreMovies()
-        {
-            var movies = await MovieDownloader.FetchListOfMovies(webAppUri, converter);
-            var shuffledMovies = CollectionUtils.Shuffled(movies.ToList(), random);
-            CollectionUtils.ReplaceContentsWith(allMovies, shuffledMovies);
-
-            var cachedMovie = GetCachedMovie(allMovies);
-            if (cachedMovie != null)
-            {
-                allMovies.Add(cachedMovie);
-                var indexOfLastElement = allMovies.Count - 1;
-                // needs to be one less because RequestNextVideo() is called as the first thing
-                CurrentMovieIndicator = indexOfLastElement - 1;
-            }
-        }
-
-        private Movie GetCachedMovie(IEnumerable<Movie> allMovies)
+        private static Maybe<Movie> GetCachedMovie(IEnumerable<Movie> allMovies, Random random)
         {
             var cachedMovies = MovieDownloader.FilterCachedMovies(allMovies).ToList();
-            return CollectionUtils.Choice(cachedMovies, random).OrElseDefault();
+            return CollectionUtils.Choice(cachedMovies, random);
         }
 
-        public async Task PrefetchNextMovie()
+        public async Task<string> RequestNextMovie()
         {
-            if(prefetchingTask == null || prefetchingTask.IsCompleted)
-                prefetchingTask = AllMovies[(CurrentMovieIndicator + 1) % AllMovies.Count].LoadVideoAndGetItsLocalPath();
-            await prefetchingTask;
-            prefetchingTask = null;
+            if(CurrentMovie == null)
+                movieSequenceEnumerator.MoveNext();
+            CurrentMovie = await movieSequenceEnumerator.Current;
+            movieSequenceEnumerator.MoveNext();
+            return Path.Combine("Openings", CurrentMovie.ConvertedFileName);
         }
 
-        public async Task<Movie> RequestNextMovie()
-        {
-            CurrentMovieIndicator = (CurrentMovieIndicator+1) % AllMovies.Count;
-            var movie = AllMovies[CurrentMovieIndicator];
-            if(prefetchingTask != null)
-                await prefetchingTask;
-            return movie;
-        }
-
-        public PlayerModel(Uri webAppUri, Random random, IMovieConverter converter)
+        private PlayerModel(Uri webAppUri, Random random, IMovieConverter converter)
         {
             this.webAppUri = webAppUri;
             this.random = random;
             this.converter = converter;
             Directory.CreateDirectory("Openings");
+        }
+
+        public static async Task<PlayerModel> Create(Uri webAppUri, Random random, IMovieConverter converter)
+        {
+            var playerModel = new PlayerModel(webAppUri, random, converter);
+            var movies = await MovieDownloader.FetchListOfMovies(webAppUri, converter);
+            var shuffledMovies = CollectionUtils.Shuffled(movies.ToList(), random);
+            CollectionUtils.ReplaceContentsWith(playerModel.allMovies, shuffledMovies);
+
+            var movieSequence = GetCachedMovie(playerModel.allMovies, playerModel.random)
+                .ToEnumerable()
+                .Concat(CollectionUtils.Cycle(playerModel.AllMovies));
+
+            playerModel.movieSequenceEnumerator = movieSequence
+                .Select(movie => MovieDownloader.DownloadMovie(webAppUri, movie, movie.LocalFileName, converter))
+                .GetEnumerator();
+            return playerModel;
         }
     }
 }

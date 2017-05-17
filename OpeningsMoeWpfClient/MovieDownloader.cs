@@ -26,7 +26,7 @@ namespace OpeningsMoeWpfClient
             }
         }
 
-        public static async Task DownloadMovie(Uri webAppUri, Movie movie, string where)
+        public static async Task<Movie> DownloadLowMovie(Uri webAppUri, Movie movie, string where)
         {
             using (var httpClient = new HttpClient())
             {
@@ -37,6 +37,24 @@ namespace OpeningsMoeWpfClient
                     await stream.CopyToAsync(file);
                 }
             }
+            return movie;
+        }
+
+        public static async Task<Movie> DownloadMovie(Uri webAppUri, Movie movie, string where, IMovieConverter converter)
+        {
+            var localPath = Path.Combine("Openings", movie.LocalFileName);
+            var newLocalPath = Path.Combine("Openings", movie.ConvertedFileName);
+            var sourceExists = File.Exists(localPath);
+            var adaptedExists = File.Exists(newLocalPath);
+            if (!sourceExists)
+            {
+                await MovieDownloader.DownloadLowMovie(webAppUri, movie, localPath);
+            }
+            if (!adaptedExists)
+            {
+                await converter.ConvertMovie(localPath, newLocalPath);
+            }
+            return movie;
         }
 
         // given the sequence of movies, return the ones that can be played immediately,

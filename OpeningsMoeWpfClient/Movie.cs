@@ -6,23 +6,6 @@ namespace OpeningsMoeWpfClient
 {
     class Movie
     {
-        public async Task<string> LoadVideoAndGetItsLocalPath()
-        {
-            var localPath = Path.Combine("Openings", LocalFileName);
-            var newLocalPath = Path.Combine("Openings", ConvertedFileName);
-            var sourceExists = File.Exists(localPath);
-            var adaptedExists = File.Exists(newLocalPath);
-            if(!sourceExists)
-            {
-                await MovieDownloader.DownloadMovie(webAppUri, this, localPath);
-            }
-            if(!adaptedExists)
-            {
-                await converter.ConvertMovie(localPath, newLocalPath);
-            }
-            return newLocalPath;
-        }
-
         public string LocalFileName => RemoteFileName
             .Replace(':', '_')
             .Replace('\\', '_')
@@ -33,7 +16,7 @@ namespace OpeningsMoeWpfClient
             .Replace('>', '_')
             .Replace('|', '_');
 
-        private string ConvertedFileName => $"{Path.GetFileNameWithoutExtension(LocalFileName)}.avi";
+        public string ConvertedFileName => $"{Path.GetFileNameWithoutExtension(LocalFileName)}.avi";
 
         public string RemoteFileName => movieData.file;
 

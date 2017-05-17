@@ -15,25 +15,19 @@ namespace OpeningsMoeWpfClient
 
         public MainWindow()
         {
-            var ffmpegPath = FfmpegMovieConverter.TryLookupFfmpeg();
-            if(ffmpegPath == null)
-                throw new InvalidOperationException("FFMPEG NOT FOUND");
-            model = new PlayerModel(new Uri("http://openings.moe/"), new Random(), new FfmpegMovieConverter(ffmpegPath));
-            DataContext = model;
             InitializeComponent();
         }
 
         private async Task NextVideo()
         {
-            var movie = await model.RequestNextMovie();
+            var moviePath = await model.RequestNextMovie();
             OpeningPlayer.SetCurrentValue(
                 MediaElement.SourceProperty,
                 new Uri(
                     Path.Combine(
                         Directory.GetCurrentDirectory(),
-                        await movie.LoadVideoAndGetItsLocalPath())));
+                        moviePath)));
             OpeningPlayer.Play();
-            await model.PrefetchNextMovie();
         }
 
         private async void OnVideoFinishedPlaying(object sender, RoutedEventArgs e)
@@ -43,7 +37,11 @@ namespace OpeningsMoeWpfClient
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
-            await model.DownloadMoreMovies();
+            var ffmpegPath = FfmpegMovieConverter.TryLookupFfmpeg();
+            if (ffmpegPath == null)
+                throw new InvalidOperationException("FFMPEG NOT FOUND");
+            model = await PlayerModel.Create(new Uri("http://openings.moe/"), new Random(), new FfmpegMovieConverter(ffmpegPath));
+            DataContext = model;
             await NextVideo();
         }
     }
