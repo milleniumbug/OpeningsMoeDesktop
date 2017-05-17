@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace OpeningsMoeWpfClient
 {
@@ -18,15 +14,7 @@ namespace OpeningsMoeWpfClient
             var adaptedExists = File.Exists(newLocalPath);
             if(!sourceExists)
             {
-                using(var httpClient = new HttpClient())
-                {
-                    httpClient.BaseAddress = webAppUri;
-                    using(var file = File.OpenWrite(localPath))
-                    using(var stream = await httpClient.GetStreamAsync($"video/{RemoteFileName}"))
-                    {
-                        await stream.CopyToAsync(file);
-                    }
-                }
+                await MovieDownloader.DownloadMovie(webAppUri, this, localPath);
             }
             if(!adaptedExists)
             {

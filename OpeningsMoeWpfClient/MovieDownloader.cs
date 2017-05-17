@@ -48,18 +48,5 @@ namespace OpeningsMoeWpfClient
                 .Select(file => Path.GetFileNameWithoutExtension(file.Name)));
             return movies.Where(movie => pathsToCachedFiles.Contains(Path.GetFileNameWithoutExtension(movie.LocalFileName)));
         }
-
-        public static IObservable<Movie> DownloadMovies(ICollection<Movie> movies)
-        {
-            return Observable.Create<Movie>(async (IObserver<Movie> o) =>
-            {
-                foreach(var movie in CollectionUtils.Cycle(movies))
-                {
-                    await movie.LoadVideoAndGetItsLocalPath();
-                    o.OnNext(movie);
-                }
-                return () => {};
-            });
-        }
     }
 }
