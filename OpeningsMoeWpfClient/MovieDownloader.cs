@@ -12,10 +12,23 @@ namespace OpeningsMoeWpfClient
     {
         private readonly Uri openingsMoeUri;
         private readonly DirectoryInfo targetDirectory;
-        private IEnumerable<Movie> movies;
+        private IEnumerable<MovieDescription> movies;
+
+        private string SafeFilePathFor(string filename)
+        {
+            return filename
+                .Replace(':', '_')
+                .Replace('\\', '_')
+                .Replace('*', '_')
+                .Replace('?', '_')
+                .Replace('"', '_')
+                .Replace('<', '_')
+                .Replace('>', '_')
+                .Replace('|', '_');
+        }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<Movie>> Movies()
+        public async Task<IEnumerable<MovieDescription>> Movies()
         {
             if(movies == null)
             {
@@ -25,8 +38,8 @@ namespace OpeningsMoeWpfClient
                     using (var response = await httpClient.GetAsync("api/list.php"))
                     {
                         var resultString = await response.Content.ReadAsStringAsync();
-                        movies = JsonConvert.DeserializeObject<IEnumerable<MovieData>>(resultString)
-                            .Select(data => new Movie(data))
+                        movies = JsonConvert.DeserializeObject<IEnumerable<MovieJsonObject>>(resultString)
+                            .Select(data => new MovieDescription(data))
                             .ToList();
                     }
                 }
@@ -35,17 +48,17 @@ namespace OpeningsMoeWpfClient
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<Movie>> MoviesReady()
+        public async Task<IEnumerable<MovieDescription>> MoviesReady()
         {
             var pathsToCachedFiles = new HashSet<string>(targetDirectory
                 .EnumerateFiles("*.avi")
                 .Select(file => Path.GetFileNameWithoutExtension(file.Name)));
-            return (await Movies()).Where(movie => pathsToCachedFiles.Contains(Path.GetFileNameWithoutExtension(movie.LocalFileName)));
+            return (await Movies()).Where(movie => pathsToCachedFiles.Contains(Path.GetFileNameWithoutExtension(SafeFilePathFor(movie.RemoteFileName))));
         }
 
-        public async Task<string> GetPathToTheMovieFile(Movie movie)
+        public async Task<string> GetPathToTheMovieFile(MovieDescription movieDescription)
         {
-            string @where = Path.Combine(targetDirectory.Name, movie.LocalFileName);
+            string @where = Path.Combine(targetDirectory.Name, SafeFilePathFor(movieDescription.RemoteFileName));
             var sourceExists = File.Exists(@where);
             if(!sourceExists)
             {
@@ -53,7 +66,7 @@ namespace OpeningsMoeWpfClient
                 {
                     httpClient.BaseAddress = openingsMoeUri;
                     using (var file = File.OpenWrite(@where))
-                    using (var stream = await httpClient.GetStreamAsync($"video/{movie.RemoteFileName}"))
+                    using (var stream = await httpClient.GetStreamAsync($"video/{movieDescription.RemoteFileName}"))
                     {
                         await stream.CopyToAsync(file);
                     }

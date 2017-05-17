@@ -18,22 +18,22 @@ namespace OpeningsMoeWpfClient
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<Movie>> Movies()
+        public Task<IEnumerable<MovieDescription>> Movies()
         {
             return decorated.Movies();
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<Movie>> MoviesReady()
+        public Task<IEnumerable<MovieDescription>> MoviesReady()
         {
             return decorated.MoviesReady();
         }
 
         /// <inheritdoc />
-        public async Task<string> GetPathToTheMovieFile(Movie movie)
+        public async Task<string> GetPathToTheMovieFile(MovieDescription movieDescription)
         {
-            var path = await decorated.GetPathToTheMovieFile(movie);
-            var converted = Path.Combine(targetDirectory.Name, movie.ConvertedFileName);
+            var path = await decorated.GetPathToTheMovieFile(movieDescription);
+            var converted = Path.Combine(targetDirectory.Name, $"{Path.GetFileNameWithoutExtension(path)}.avi");
             if(!File.Exists(converted))
                 await converter.ConvertMovie(path, converted);
             return converted;

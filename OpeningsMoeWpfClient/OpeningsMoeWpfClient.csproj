@@ -95,8 +95,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Movie.cs" />
-    <Compile Include="MovieData.cs" />
+    <Compile Include="MovieDescription.cs" />
+    <Compile Include="MovieJsonObject.cs" />
     <Compile Include="MovieDownloader.cs" />
     <Compile Include="PlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

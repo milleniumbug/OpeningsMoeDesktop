@@ -17,31 +17,31 @@ namespace OpeningsMoeWpfClient
         private Random random;
         private readonly IMovieProvider movieProvider;
 
-        private ObservableCollection<Movie> allMovies = new ObservableCollection<Movie>();
+        private ObservableCollection<MovieDescription> allMovies = new ObservableCollection<MovieDescription>();
 
-        private IEnumerator<Task<KeyValuePair<Movie, string>>> movieSequenceEnumerator;
+        private IEnumerator<Task<KeyValuePair<MovieDescription, string>>> movieSequenceEnumerator;
 
-        public IReadOnlyList<Movie> AllMovies => allMovies;
+        public IReadOnlyList<MovieDescription> AllMovies => allMovies;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private Movie currentMovie;
+        private MovieDescription currentMovieDescription;
 
-        private Movie CurrentMovie
+        private MovieDescription CurrentMovieDescription
         {
-            get => currentMovie;
+            get => currentMovieDescription;
             set
             {
-                if(currentMovie == value)
+                if(currentMovieDescription == value)
                     return;
-                currentMovie = value;
+                currentMovieDescription = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentlyPlaying));
             }
         }
 
-        public string CurrentlyPlaying => CurrentMovie != null
-            ? $"{CurrentMovie.Title} - {CurrentMovie.Source}"
+        public string CurrentlyPlaying => CurrentMovieDescription != null
+            ? $"{CurrentMovieDescription.Title} - {CurrentMovieDescription.Source}"
             : "Loading...";
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -51,10 +51,10 @@ namespace OpeningsMoeWpfClient
 
         public async Task<string> RequestNextMovie()
         {
-            if(CurrentMovie == null)
+            if(CurrentMovieDescription == null)
                 movieSequenceEnumerator.MoveNext();
             var moviePathPair = await movieSequenceEnumerator.Current;
-            CurrentMovie = moviePathPair.Key;
+            CurrentMovieDescription = moviePathPair.Key;
             movieSequenceEnumerator.MoveNext();
             return moviePathPair.Value;
         }
@@ -79,7 +79,7 @@ namespace OpeningsMoeWpfClient
                 .Concat(CollectionUtils.Cycle(playerModel.AllMovies));
 
             playerModel.movieSequenceEnumerator = movieSequence
-                .Select(async movie => new KeyValuePair<Movie, string>(movie, await movieProvider.GetPathToTheMovieFile(movie)))
+                .Select(async movie => new KeyValuePair<MovieDescription, string>(movie, await movieProvider.GetPathToTheMovieFile(movie)))
                 .GetEnumerator();
             return playerModel;
         }

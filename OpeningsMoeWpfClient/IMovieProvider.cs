@@ -7,12 +7,12 @@ namespace OpeningsMoeWpfClient
     interface IMovieProvider
     {
         // Get the movie descriptions that this movie provider can provide path to
-        Task<IEnumerable<Movie>> Movies();
+        Task<IEnumerable<MovieDescription>> Movies();
 
         // Get the movie descriptions which this movie provider can immediately provide access to
         // (that is, the returned Task becomes available very soon)
-        Task<IEnumerable<Movie>> MoviesReady();
+        Task<IEnumerable<MovieDescription>> MoviesReady();
 
-        Task<string> GetPathToTheMovieFile(Movie movie);
+        Task<string> GetPathToTheMovieFile(MovieDescription movieDescription);
     }
 }

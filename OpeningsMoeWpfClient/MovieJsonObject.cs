@@ -1,6 +1,6 @@
 ﻿namespace OpeningsMoeWpfClient
 {
-    public class MovieData
+    public class MovieJsonObject
     {
         public string title { get; set; }
 
