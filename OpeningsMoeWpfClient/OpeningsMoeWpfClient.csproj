@@ -85,6 +85,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CollectionExtensions.cs" />
+    <Compile Include="ConvertedMovieProvider.cs" />
     <Compile Include="FfmpegMovieConverter.cs" />
     <Compile Include="IMovieConverter.cs" />
     <Compile Include="IMovieProvider.cs" />

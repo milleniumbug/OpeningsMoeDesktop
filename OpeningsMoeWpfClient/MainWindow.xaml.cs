@@ -46,12 +46,17 @@ namespace OpeningsMoeWpfClient
                 new ConvertedMovieProvider(
                     new MovieDownloader(
                         new Uri("http://openings.moe/"),
-                        targetDirectory.Name),
+                        targetDirectory),
                     new FfmpegMovieConverter(ffmpegPath),
-                    targetDirectory.Name),
+                    targetDirectory),
                 targetDirectory);
             DataContext = model;
             await NextVideo();
+        }
+
+        private void OnClosed(object sender, EventArgs e)
+        {
+            model.Dispose();
         }
     }
 }

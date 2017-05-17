@@ -8,46 +8,10 @@ using Newtonsoft.Json;
 
 namespace OpeningsMoeWpfClient
 {
-    class ConvertedMovieProvider : IMovieProvider
-    {
-        private readonly IMovieProvider decorated;
-        private readonly IMovieConverter converter;
-        private readonly string targetDirectory;
-
-        public ConvertedMovieProvider(IMovieProvider decorated, IMovieConverter converter, string targetDirectory)
-        {
-            this.decorated = decorated;
-            this.converter = converter;
-            this.targetDirectory = targetDirectory;
-        }
-
-        /// <inheritdoc />
-        public Task<IEnumerable<Movie>> Movies()
-        {
-            return decorated.Movies();
-        }
-
-        /// <inheritdoc />
-        public Task<IEnumerable<Movie>> MoviesReady()
-        {
-            return decorated.MoviesReady();
-        }
-
-        /// <inheritdoc />
-        public async Task<string> GetPathToTheMovieFile(Movie movie)
-        {
-            var path = await decorated.GetPathToTheMovieFile(movie);
-            var converted = Path.Combine(targetDirectory, movie.ConvertedFileName);
-            if(!File.Exists(converted))
-                await converter.ConvertMovie(path, converted);
-            return converted;
-        }
-    }
-
     class MovieDownloader : IMovieProvider
     {
         private readonly Uri openingsMoeUri;
-        private readonly string targetDirectory;
+        private readonly DirectoryInfo targetDirectory;
         private IEnumerable<Movie> movies;
 
         /// <inheritdoc />
@@ -73,7 +37,7 @@ namespace OpeningsMoeWpfClient
         /// <inheritdoc />
         public async Task<IEnumerable<Movie>> MoviesReady()
         {
-            var pathsToCachedFiles = new HashSet<string>(new DirectoryInfo(targetDirectory)
+            var pathsToCachedFiles = new HashSet<string>(targetDirectory
                 .EnumerateFiles("*.avi")
                 .Select(file => Path.GetFileNameWithoutExtension(file.Name)));
             return (await Movies()).Where(movie => pathsToCachedFiles.Contains(Path.GetFileNameWithoutExtension(movie.LocalFileName)));
@@ -81,7 +45,7 @@ namespace OpeningsMoeWpfClient
 
         public async Task<string> GetPathToTheMovieFile(Movie movie)
         {
-            string @where = Path.Combine(targetDirectory, movie.LocalFileName);
+            string @where = Path.Combine(targetDirectory.Name, movie.LocalFileName);
             var sourceExists = File.Exists(@where);
             if(!sourceExists)
             {
@@ -95,10 +59,10 @@ namespace OpeningsMoeWpfClient
                     }
                 }
             }
-            return Path.Combine(targetDirectory, movie.LocalFileName);
+            return where;
         }
 
-        public MovieDownloader(Uri openingsMoeUri, string targetDirectory)
+        public MovieDownloader(Uri openingsMoeUri, DirectoryInfo targetDirectory)
         {
             this.openingsMoeUri = openingsMoeUri;
             this.targetDirectory = targetDirectory;

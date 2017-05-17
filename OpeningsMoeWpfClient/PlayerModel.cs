@@ -12,9 +12,10 @@ using Newtonsoft.Json;
 
 namespace OpeningsMoeWpfClient
 {
-    class PlayerModel : INotifyPropertyChanged
+    class PlayerModel : INotifyPropertyChanged, IDisposable
     {
         private Random random;
+        private readonly IMovieProvider movieProvider;
 
         private ObservableCollection<Movie> allMovies = new ObservableCollection<Movie>();
 
@@ -61,6 +62,7 @@ namespace OpeningsMoeWpfClient
         private PlayerModel(Random random, IMovieProvider movieProvider, DirectoryInfo targetDirectory)
         {
             this.random = random;
+            this.movieProvider = movieProvider;
             targetDirectory.Create();
         }
 
@@ -80,6 +82,12 @@ namespace OpeningsMoeWpfClient
                 .Select(async movie => new KeyValuePair<Movie, string>(movie, await movieProvider.GetPathToTheMovieFile(movie)))
                 .GetEnumerator();
             return playerModel;
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            movieSequenceEnumerator?.Dispose();
         }
     }
 }

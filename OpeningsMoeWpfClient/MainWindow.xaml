@@ -8,6 +8,7 @@
     Title="{Binding CurrentlyPlaying}"
     Width="525"
     Height="350"
+    Closed="OnClosed"
     Loaded="OnLoaded"
     mc:Ignorable="d">
     <Grid>
