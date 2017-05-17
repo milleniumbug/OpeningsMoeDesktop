@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive.Linq;
@@ -23,6 +24,29 @@ namespace OpeningsMoeWpfClient
                         .ToList();
                 }
             }
+        }
+
+        public static async Task DownloadMovie(Uri webAppUri, Movie movie, string where)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.BaseAddress = webAppUri;
+                using (var file = File.OpenWrite(where))
+                using (var stream = await httpClient.GetStreamAsync($"video/{movie.RemoteFileName}"))
+                {
+                    await stream.CopyToAsync(file);
+                }
+            }
+        }
+
+        // given the sequence of movies, return the ones that can be played immediately,
+        // without waiting for a download
+        public static IEnumerable<Movie> FilterCachedMovies(IEnumerable<Movie> movies)
+        {
+            var pathsToCachedFiles = new HashSet<string>(new DirectoryInfo("Openings")
+                .EnumerateFiles("*.avi")
+                .Select(file => Path.GetFileNameWithoutExtension(file.Name)));
+            return movies.Where(movie => pathsToCachedFiles.Contains(Path.GetFileNameWithoutExtension(movie.LocalFileName)));
         }
 
         public static IObservable<Movie> DownloadMovies(ICollection<Movie> movies)

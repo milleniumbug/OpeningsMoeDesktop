@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Functional.Maybe;
 using Newtonsoft.Json;
 
 namespace OpeningsMoeWpfClient
@@ -71,14 +72,8 @@ namespace OpeningsMoeWpfClient
 
         private Movie GetCachedMovie(IEnumerable<Movie> allMovies)
         {
-            var cachedFiles = new DirectoryInfo("Openings")
-                .EnumerateFiles("*.avi")
-                .Select(file => Path.GetFileNameWithoutExtension(file.Name))
-                .ToList();
-            if(cachedFiles.Count == 0)
-                return null;
-            var randomChoice = cachedFiles[random.Next(cachedFiles.Count)];
-            return allMovies.Single(movie => movie.LocalFileName.Contains(randomChoice));
+            var cachedMovies = MovieDownloader.FilterCachedMovies(allMovies).ToList();
+            return CollectionUtils.Choice(cachedMovies, random).OrElseDefault();
         }
 
         public async Task PrefetchNextMovie()

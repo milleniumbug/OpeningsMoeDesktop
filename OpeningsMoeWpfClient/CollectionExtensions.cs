@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Functional.Maybe;
 
 namespace OpeningsMoeWpfClient
 {
@@ -47,6 +48,13 @@ namespace OpeningsMoeWpfClient
             {
                 targetCollection.Add(element);
             }
+        }
+
+        public static Maybe<T> Choice<T>(IList<T> list, Random random)
+        {
+            return list.Count == 0
+                ? Maybe<T>.Nothing
+                : list[random.Next(list.Count)].ToMaybe();
         }
     }
 }
