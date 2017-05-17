@@ -54,7 +54,7 @@ namespace OpeningsMoeWpfClient
 
         private static Maybe<Movie> GetCachedMovie(IEnumerable<Movie> allMovies, Random random)
         {
-            var cachedMovies = MovieDownloader.FilterCachedMovies(allMovies).ToList();
+            var cachedMovies = MovieDownloaderGizmo.FilterCachedMovies(allMovies).ToList();
             return CollectionUtils.Choice(cachedMovies, random);
         }
 
@@ -78,7 +78,7 @@ namespace OpeningsMoeWpfClient
         public static async Task<PlayerModel> Create(Uri webAppUri, Random random, IMovieConverter converter)
         {
             var playerModel = new PlayerModel(webAppUri, random, converter);
-            var movies = await MovieDownloader.FetchListOfMovies(webAppUri, converter);
+            var movies = await MovieDownloaderGizmo.FetchListOfMovies(webAppUri);
             var shuffledMovies = CollectionUtils.Shuffled(movies.ToList(), random);
             CollectionUtils.ReplaceContentsWith(playerModel.allMovies, shuffledMovies);
 
@@ -87,7 +87,7 @@ namespace OpeningsMoeWpfClient
                 .Concat(CollectionUtils.Cycle(playerModel.AllMovies));
 
             playerModel.movieSequenceEnumerator = movieSequence
-                .Select(movie => MovieDownloader.DownloadMovie(webAppUri, movie, movie.LocalFileName, converter))
+                .Select(movie => MovieDownloaderGizmo.DownloadMovie(webAppUri, movie, movie.LocalFileName, converter))
                 .GetEnumerator();
             return playerModel;
         }
