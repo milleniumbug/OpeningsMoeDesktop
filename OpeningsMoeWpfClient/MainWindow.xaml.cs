@@ -40,7 +40,15 @@ namespace OpeningsMoeWpfClient
             var ffmpegPath = FfmpegMovieConverter.TryLookupFfmpeg();
             if (ffmpegPath == null)
                 throw new InvalidOperationException("FFMPEG NOT FOUND");
-            model = await PlayerModel.Create(new Uri("http://openings.moe/"), new Random(), new FfmpegMovieConverter(ffmpegPath));
+            model = await PlayerModel.Create(
+                new Random(),
+                new ConvertedMovieProvider(
+                    new MovieDownloader(
+                        new Uri("http://openings.moe/"),
+                        "Openings"),
+                    new FfmpegMovieConverter(ffmpegPath),
+                    "Openings"),
+                new DirectoryInfo("Openings"));
             DataContext = model;
             await NextVideo();
         }

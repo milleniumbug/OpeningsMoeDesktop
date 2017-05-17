@@ -15,19 +15,15 @@ namespace OpeningsMoeWpfClient
     class PlayerModel : INotifyPropertyChanged
     {
         private Random random;
-        private readonly IMovieConverter converter;
-
-        private Uri webAppUri;
 
         private ObservableCollection<Movie> allMovies = new ObservableCollection<Movie>();
 
-        private IEnumerator<Task<Movie>> movieSequenceEnumerator;
+        private IEnumerator<Task<KeyValuePair<Movie, string>>> movieSequenceEnumerator;
 
         public IReadOnlyList<Movie> AllMovies => allMovies;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private Task prefetchingTask;
         private Movie currentMovie;
 
         private Movie CurrentMovie
@@ -52,42 +48,36 @@ namespace OpeningsMoeWpfClient
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private static Maybe<Movie> GetCachedMovie(IEnumerable<Movie> allMovies, Random random)
-        {
-            var cachedMovies = MovieDownloaderGizmo.FilterCachedMovies(allMovies).ToList();
-            return CollectionUtils.Choice(cachedMovies, random);
-        }
-
         public async Task<string> RequestNextMovie()
         {
             if(CurrentMovie == null)
                 movieSequenceEnumerator.MoveNext();
-            CurrentMovie = await movieSequenceEnumerator.Current;
+            var moviePathPair = await movieSequenceEnumerator.Current;
+            CurrentMovie = moviePathPair.Key;
             movieSequenceEnumerator.MoveNext();
-            return Path.Combine("Openings", CurrentMovie.ConvertedFileName);
+            return moviePathPair.Value;
         }
 
-        private PlayerModel(Uri webAppUri, Random random, IMovieConverter converter)
+        private PlayerModel(Random random, IMovieProvider movieProvider, DirectoryInfo targetDirectory)
         {
-            this.webAppUri = webAppUri;
             this.random = random;
-            this.converter = converter;
-            Directory.CreateDirectory("Openings");
+            targetDirectory.Create();
         }
 
-        public static async Task<PlayerModel> Create(Uri webAppUri, Random random, IMovieConverter converter)
+        public static async Task<PlayerModel> Create(Random random, IMovieProvider movieProvider, DirectoryInfo targetDirectory)
         {
-            var playerModel = new PlayerModel(webAppUri, random, converter);
-            var movies = await MovieDownloaderGizmo.FetchListOfMovies(webAppUri);
+            var playerModel = new PlayerModel(random, movieProvider, targetDirectory);
+            var movies = await movieProvider.Movies();
             var shuffledMovies = CollectionUtils.Shuffled(movies.ToList(), random);
             CollectionUtils.ReplaceContentsWith(playerModel.allMovies, shuffledMovies);
 
-            var movieSequence = GetCachedMovie(playerModel.allMovies, playerModel.random)
+            var moviesReady = (await movieProvider.MoviesReady()).ToList();
+            var movieSequence = CollectionUtils.Choice(moviesReady, random)
                 .ToEnumerable()
                 .Concat(CollectionUtils.Cycle(playerModel.AllMovies));
 
             playerModel.movieSequenceEnumerator = movieSequence
-                .Select(movie => MovieDownloaderGizmo.DownloadMovie(webAppUri, movie, movie.LocalFileName, converter))
+                .Select(async movie => new KeyValuePair<Movie, string>(movie, await movieProvider.GetPathToTheMovieFile(movie)))
                 .GetEnumerator();
             return playerModel;
         }
