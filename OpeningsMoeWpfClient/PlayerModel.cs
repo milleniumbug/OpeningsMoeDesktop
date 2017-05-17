@@ -58,7 +58,7 @@ namespace OpeningsMoeWpfClient
         {
             var movies = await MovieDownloader.FetchListOfMovies(webAppUri, converter);
             var shuffledMovies = CollectionUtils.Shuffled(movies.ToList(), random);
-            CollectionUtils.ReplaceWith(allMovies, shuffledMovies);
+            CollectionUtils.ReplaceContentsWith(allMovies, shuffledMovies);
 
             var cachedMovie = GetCachedMovie(allMovies);
             if (cachedMovie != null)

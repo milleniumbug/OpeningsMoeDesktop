@@ -41,7 +41,7 @@ namespace OpeningsMoeWpfClient
             }
         }
 
-        public static void ReplaceWith<T>(ICollection<T> targetCollection, IEnumerable<T> elements)
+        public static void ReplaceContentsWith<T>(ICollection<T> targetCollection, IEnumerable<T> elements)
         {
             targetCollection.Clear();
             foreach(var element in elements)
