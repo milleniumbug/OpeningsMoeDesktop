@@ -4,11 +4,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Functional.Maybe;
-using Newtonsoft.Json;
 
 namespace OpeningsMoeWpfClient
 {

@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-
-namespace OpeningsMoeWpfClient
+﻿namespace OpeningsMoeWpfClient
 {
     class MovieDescription
     {
