@@ -20,14 +20,14 @@ namespace OpeningsMoeWpfClient
             }
         }
 
-        public static IList<T> Shuffled<T>(IList<T> list, Random rand)
+        public static IList<T> Shuffled<T>(IReadOnlyList<T> list, Random rand)
         {
             var shuffledList = list.ToList();
             Shuffle(shuffledList, rand);
             return shuffledList;
         }
 
-        public static IEnumerable<T> Cycle<T>(ICollection<T> collection)
+        public static IEnumerable<T> Cycle<T>(IReadOnlyCollection<T> collection)
         {
             while(true)
             {
@@ -50,7 +50,7 @@ namespace OpeningsMoeWpfClient
             }
         }
 
-        public static Maybe<T> Choice<T>(IList<T> list, Random random)
+        public static Maybe<T> Choice<T>(IReadOnlyList<T> list, Random random)
         {
             return list.Count == 0
                 ? Maybe<T>.Nothing
