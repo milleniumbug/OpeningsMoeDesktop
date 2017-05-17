@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 
 namespace OpeningsMoeWpfClient
@@ -26,15 +25,9 @@ namespace OpeningsMoeWpfClient
 
         private readonly MovieData movieData;
 
-        private readonly IMovieConverter converter;
-
-        private readonly Uri webAppUri;
-
-        public Movie(MovieData movieData, Uri webAppUri, IMovieConverter converter)
+        public Movie(MovieData movieData)
         {
             this.movieData = movieData;
-            this.webAppUri = webAppUri;
-            this.converter = converter;
         }
     }
 }

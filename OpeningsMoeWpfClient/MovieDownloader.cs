@@ -20,7 +20,7 @@ namespace OpeningsMoeWpfClient
                 {
                     var resultString = await response.Content.ReadAsStringAsync();
                     return JsonConvert.DeserializeObject<IEnumerable<MovieData>>(resultString)
-                        .Select(data => new Movie(data, uri, converter))
+                        .Select(data => new Movie(data))
                         .ToList();
                 }
             }
