@@ -59,18 +59,21 @@ namespace OpeningsMoeWpfClient
         public async Task<string> GetPathToTheMovieFile(MovieDescription movieDescription)
         {
             string @where = Path.Combine(targetDirectory.Name, SafeFilePathFor(movieDescription.RemoteFileName));
+            var temporaryPath = Path.Combine(Directory.GetCurrentDirectory(),
+                $"downloaded{Path.GetExtension(movieDescription.RemoteFileName)}");
             var sourceExists = File.Exists(@where);
             if(!sourceExists)
             {
                 using (var httpClient = new HttpClient())
                 {
                     httpClient.BaseAddress = openingsMoeUri;
-                    using (var file = File.OpenWrite(@where))
+                    using (var file = File.Create(temporaryPath))
                     using (var stream = await httpClient.GetStreamAsync($"video/{movieDescription.RemoteFileName}"))
                     {
                         await stream.CopyToAsync(file);
                     }
                 }
+                File.Move(temporaryPath, where);
             }
             return where;
         }
