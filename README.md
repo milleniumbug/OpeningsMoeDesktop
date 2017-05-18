@@ -1,7 +1,7 @@
 OpeningsMoeWpfClient
 ====================
 
-This is a "client" for the [openings.moe](http://openings.moe) webapp. It's bare bones in functionality, and it has several "issues", or design choices, whatever you may call them:
+This is a "client" for the [openings.moe](http://openings.moe/hub) webapp. It's bare bones in functionality, and it has several "issues", or design choices, whatever you may call them:
 
 - the entire video is downloaded before playing. This is by design, because I'm not a fan of music being interrupted at random moments. 
 - downloaded videos are never deleted. This is also by design.
