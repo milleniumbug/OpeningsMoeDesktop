@@ -12,19 +12,45 @@
     Closed="OnClosed"
     Loaded="OnLoaded"
     mc:Ignorable="d">
+    <Window.Resources>
+        <Style x:Key="TransparentStyle" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="Transparent" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid Background="Transparent">
+                                <ContentPresenter />
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <media:MediaElementWrapper
-            x:Name="OpeningPlayer"
-            Grid.Row="0"
+        <Button
             Grid.Column="0"
-            MediaEnded="OnVideoFinishedPlaying"
-            Stretch="Uniform" />
+            Click="OnPlayerClick"
+            Style="{StaticResource TransparentStyle}">
+            <media:MediaElementWrapper
+                x:Name="OpeningPlayer"
+                MediaEnded="OnVideoFinishedPlaying"
+                Stretch="Uniform" />
+        </Button>
         <Slider
-            Grid.Row="0"
             Grid.Column="1"
             LargeChange="0.1"
             Maximum="1"

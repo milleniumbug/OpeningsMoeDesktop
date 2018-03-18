@@ -2,11 +2,11 @@
 {
     class MovieDescription
     {
-        public string RemoteFileName => movieJsonObject.file;
+        public string RemoteFileName => movieJsonObject.File;
 
-        public string Title => movieJsonObject.title;
+        public string Title => movieJsonObject.Title;
 
-        public string Source => movieJsonObject.source;
+        public string Source => movieJsonObject.Source;
 
         private readonly MovieJsonObject movieJsonObject;
 

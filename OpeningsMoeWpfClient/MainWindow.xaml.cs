@@ -37,6 +37,8 @@ namespace OpeningsMoeWpfClient
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
+            
+
             var ffmpegPath = FfmpegMovieConverter.TryLookupFfmpeg();
             if (ffmpegPath == null)
                 throw new InvalidOperationException("FFMPEG NOT FOUND");
@@ -57,6 +59,11 @@ namespace OpeningsMoeWpfClient
         private void OnClosed(object sender, EventArgs e)
         {
             model.Dispose();
+        }
+
+        private void OnPlayerClick(object sender, RoutedEventArgs e)
+        {
+            OpeningPlayer.TogglePlayPause();
         }
     }
 }
