@@ -51,7 +51,7 @@ namespace OpeningsMoeWpfClient
         public async Task<IEnumerable<MovieDescription>> MoviesReady()
         {
             var pathsToCachedFiles = new HashSet<string>(targetDirectory
-                .EnumerateFiles("*.avi")
+                .EnumerateFiles("*.webm")
                 .Select(file => Path.GetFileNameWithoutExtension(file.Name)));
             return (await Movies()).Where(movie => pathsToCachedFiles.Contains(Path.GetFileNameWithoutExtension(SafeFilePathFor(movie.RemoteFileName))));
         }
