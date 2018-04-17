@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Mpv.WPF;
 
 namespace OpeningsMoeWpfClient
 {
@@ -19,21 +21,22 @@ namespace OpeningsMoeWpfClient
         {
             InitializeComponent();
             openingPlayer = new Mpv.WPF.MpvPlayer("lib\\mpv-1.dll");
+            openingPlayer.MediaUnloaded += OnVideoFinishedPlaying;
             PlayerContainer.Children.Add(openingPlayer);
         }
 
         private async Task NextVideo()
         {
             var moviePath = await model.RequestNextMovie();
-            openingPlayer.Load(new Uri(
+            openingPlayer.Load(
                 Path.Combine(
                     Directory.GetCurrentDirectory(),
-                    moviePath)).AbsolutePath,
+                    moviePath),
                 Mpv.WPF.LoadMethod.Replace);
             openingPlayer.Resume();
         }
 
-        private async void OnVideoFinishedPlaying(object sender, RoutedEventArgs e)
+        private async void OnVideoFinishedPlaying(object sender, EventArgs e)
         {
             await NextVideo();
         }
@@ -47,8 +50,17 @@ namespace OpeningsMoeWpfClient
                     new Uri("http://openings.moe/"),
                     targetDirectory),
                 targetDirectory);
+            model.PropertyChanged += OnVolumeChanged;
             DataContext = model;
             await NextVideo();
+        }
+
+        private void OnVolumeChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == "Volume")
+            {
+                openingPlayer.Volume = (int)(model.Volume * 100);
+            }
         }
 
         private void OnClosed(object sender, EventArgs e)

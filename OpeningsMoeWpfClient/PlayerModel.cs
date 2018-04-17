@@ -38,6 +38,20 @@ namespace OpeningsMoeWpfClient
             }
         }
 
+        private float volume = 0.5f;
+
+        public float Volume
+        {
+            get => volume;
+            set
+            {
+                if(volume == value)
+                    return;
+                volume = Math.Min(1.0f, Math.Max(0.0f, value));
+                OnPropertyChanged();
+            }
+        }
+
         public string CurrentlyPlaying => CurrentMovieDescription != null
             ? $"{CurrentMovieDescription.Title} - {CurrentMovieDescription.Source}"
             : "Loading...";
