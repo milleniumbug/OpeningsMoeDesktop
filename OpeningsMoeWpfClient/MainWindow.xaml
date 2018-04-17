@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:OpeningsMoeWpfClient"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:media="https://github.com/JohanLarsson/Gu.Wpf.Media"
+    xmlns:wpf="clr-namespace:Mpv.WPF;assembly=Mpv.WPF"
     Title="{Binding CurrentlyPlaying}"
     Width="525"
     Height="350"
@@ -45,17 +45,13 @@
             Grid.Column="0"
             Click="OnPlayerClick"
             Style="{StaticResource TransparentStyle}">
-            <media:MediaElementWrapper
-                x:Name="OpeningPlayer"
-                MediaEnded="OnVideoFinishedPlaying"
-                Stretch="Uniform" />
+            <Grid x:Name="PlayerContainer" />
         </Button>
         <Slider
             Grid.Column="1"
             LargeChange="0.1"
             Maximum="1"
             Minimum="0"
-            Orientation="Vertical"
-            Value="{Binding ElementName=OpeningPlayer, Path=Volume}" />
+            Orientation="Vertical" />
     </Grid>
 </Window>

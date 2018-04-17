@@ -40,6 +40,12 @@
     <Reference Include="Gu.Wpf.Media, Version=0.5.0.2, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Gu.Wpf.Media.0.5.0.2\lib\net45\Gu.Wpf.Media.dll</HintPath>
     </Reference>
+    <Reference Include="Mpv.NET, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mpv.NET.0.2.0\lib\net45\Mpv.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="Mpv.WPF, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mpv.WPF.0.5.0\lib\net45\Mpv.WPF.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
